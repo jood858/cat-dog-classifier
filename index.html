@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cat vs Dog Classifier</title>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+</head>
+<body>
+  <h1>Cat vs Dog Classifier</h1>
+  <button type="button" onclick="init()">Start</button>
+  <input type="file" id="imageUpload" accept="image/*" onchange="predict()"/>
+  <p id="prediction"></p>
+
+  <script type="text/javascript">
+    const URL = "./model/";
+    let model, webcam, labelContainer, maxPredictions;
+
+    async function init() {
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+      model = await tmImage.load(modelURL, metadataURL);
+      document.getElementById("prediction").innerText = "Model loaded.";
+    }
+
+    async function predict() {
+      const file = document.getElementById('imageUpload').files[0];
+      const image = new Image();
+      image.src = URL.createObjectURL(file);
+      await image.decode();
+      const prediction = await model.predict(image);
+      prediction.sort((a, b) => b.probability - a.probability);
+      document.getElementById("prediction").innerText = `${prediction[0].className}: ${Math.round(prediction[0].probability * 100)}%`;
+    }
+  </script>
+</body>
+</html>
